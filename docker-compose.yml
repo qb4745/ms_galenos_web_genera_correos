@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  mysql_db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: api_rest_django
+      MYSQL_USER: mysql
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_HOST: '%'
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "mysql_db", "-u", "mysql", "-ppassword"]
+      timeout: 20s
+      retries: 10
+    networks:
+      - app-tier
+    restart: always
+
+  ms-galenos-web-genera-correos:
+    build:
+      context: .
+      dockerfile: Dockerfile.ms_galenos_web_genera_correos
+    depends_on:
+      migration:
+        condition: service_started
+      mysql_db:
+        condition: service_healthy
+    volumes:
+      - .:/ms_galenos_web_genera_correos
+    networks:
+      - app-tier
+    ports:
+      - "8000:8000"
+    command: sh -c "python /ms_galenos_web_genera_correos/ms_galenos_web_genera_correos/manage.py wait_for_db && python /ms_galenos_web_genera_correos/ms_galenos_web_genera_correos/manage.py runserver 0:8000"
+    restart: always
+
+  migration:
+    build:
+      context: .
+      dockerfile: Dockerfile.ms_galenos_web_genera_correos
+    volumes:
+      - .:/ms_galenos_web_genera_correos
+    depends_on:
+      mysql_db:
+        condition: service_healthy
+    networks:
+      - app-tier
+    command: sh -c "python /ms_galenos_web_genera_correos/ms_galenos_web_genera_correos/manage.py makemigrations && python /ms_galenos_web_genera_correos/ms_galenos_web_genera_correos/manage.py migrate"
+    restart: always
+
+networks:
+  app-tier:
+    driver: bridge
