@@ -72,7 +72,7 @@ def send_emails(request, date: str = Query(...)):
 def send_emails(request, date: str = Query(...)):
     api_url_reservas = (
         # f"http://127.0.0.1:8001/galenos/web/pacientes/reservas/lista?date={date}"
-        f"http://44.221.17.219:8000/galenos/web/pacientes/reservas/lista?date={date}"
+        f"http://3.234.53.156:8000/galenos/web/pacientes/reservas/lista?date={date}"
     )
 
     # Make API request for reservations
@@ -87,7 +87,7 @@ def send_emails(request, date: str = Query(...)):
         # Make API request for patient information
         api_url_paciente = (
             # f"http://127.0.0.1:7999/galenos/web/pacientes/lista/{reserva.id_paciente}"
-            f"http://3.234.53.156:8000/galenos/web/pacientes/lista/{reserva.id_paciente}"
+            f"http://44.221.17.219:8000/galenos/web/pacientes/lista/{reserva.id_paciente}"
         )
         response_paciente = requests.get(api_url_paciente)
         paciente_data = response_paciente.json()
